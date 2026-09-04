@@ -2,7 +2,8 @@
 
 > **Multi-Camera Traffic Intelligence & Predictive Urban Digital Twin API**
 
-[![CI Pipeline](https://github.com/your-username/urbantwin-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/urbantwin-ai/actions)
+[![CI Pipeline](https://github.com/niladripalmca24-cyber/urbantwin-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/niladripalmca24-cyber/urbantwin-ai/actions)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/niladripalmca24-cyber/urbantwin-ai)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker)](https://www.docker.com/)
