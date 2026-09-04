@@ -3,12 +3,12 @@ from datetime import datetime
 from app.models.schemas import RoadSegment, TrafficMetrics
 
 ROAD_SEGMENTS_DB: List[RoadSegment] = [
-    RoadSegment(road_id="ROAD-A-B", name="Sector 1 Financial Corridor", start_node="Junction_A", end_node="Junction_B", length_km=2.4, speed_limit_kmh=50.0),
-    RoadSegment(road_id="ROAD-B-C", name="Tech Expressway Southbound", start_node="Junction_B", end_node="Junction_C", length_km=4.1, speed_limit_kmh=80.0),
-    RoadSegment(road_id="ROAD-C-D", name="Central Avenue Sector 5", start_node="Junction_C", end_node="Junction_D", length_km=1.8, speed_limit_kmh=45.0),
-    RoadSegment(road_id="ROAD-D-E", name="Harbor Way Transit Expressway", start_node="Junction_D", end_node="Junction_E", length_km=3.5, speed_limit_kmh=60.0),
-    RoadSegment(road_id="ROAD-E-F", name="Terminal Interchange North", start_node="Junction_E", end_node="Junction_F", length_km=2.9, speed_limit_kmh=55.0),
-    RoadSegment(road_id="ROAD-F-A", name="Suburb Beltway West", start_node="Junction_F", end_node="Junction_A", length_km=5.0, speed_limit_kmh=70.0)
+    RoadSegment(road_id="ROAD-A-B", name="MG Road - Trinity Corridor", start_node="Junction_Trinity", end_node="Junction_Indiranagar", length_km=3.2, speed_limit_kmh=50.0),
+    RoadSegment(road_id="ROAD-B-C", name="100ft Road - Domlur Expressway", start_node="Junction_Indiranagar", end_node="Junction_Domlur", length_km=2.8, speed_limit_kmh=60.0),
+    RoadSegment(road_id="ROAD-C-D", name="Intermediate Ring Road - Koramangala", start_node="Junction_Domlur", end_node="Junction_Koramangala", length_km=4.1, speed_limit_kmh=55.0),
+    RoadSegment(road_id="ROAD-D-E", name="Hosur Main Road - Silk Board Interchange", start_node="Junction_Koramangala", end_node="Junction_SilkBoard", length_km=3.6, speed_limit_kmh=50.0),
+    RoadSegment(road_id="ROAD-E-F", name="Outer Ring Road - Bellandur Tech Corridor", start_node="Junction_SilkBoard", end_node="Junction_Bellandur", length_km=5.4, speed_limit_kmh=70.0),
+    RoadSegment(road_id="ROAD-F-A", name="Electronic City Elevated Tollway", start_node="Junction_Bellandur", end_node="Junction_Trinity", length_km=9.8, speed_limit_kmh=80.0)
 ]
 
 # Baseline live metrics

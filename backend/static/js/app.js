@@ -79,8 +79,8 @@ function initMap() {
     return;
   }
 
-  // Center on synthetic city center
-  map = L.map('city-map', { zoomControl: true }).setView([37.7749, -122.4194], 13);
+  // Center on Bangalore traffic corridor network
+  map = L.map('city-map', { zoomControl: true }).setView([12.9350, 77.6350], 12);
 
   // CartoDB Dark Matter tiles
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -140,14 +140,14 @@ function renderMapElements(cameras, traffic) {
     `);
   });
 
-  // Draw synthetic road network polylines with congestion colors
+  // Draw Bangalore road network polylines with congestion colors
   const roadCoords = {
-    "ROAD-A-B": [[37.7749, -122.4194], [37.7790, -122.4150]],
-    "ROAD-B-C": [[37.7790, -122.4150], [37.7710, -122.4240]],
-    "ROAD-C-D": [[37.7710, -122.4240], [37.7680, -122.4100]],
-    "ROAD-D-E": [[37.7680, -122.4100], [37.7830, -122.4300]],
-    "ROAD-E-F": [[37.7830, -122.4300], [37.7620, -122.4350]],
-    "ROAD-F-A": [[37.7620, -122.4350], [37.7749, -122.4194]]
+    "ROAD-A-B": [[12.9756, 77.6067], [12.9784, 77.6408]],
+    "ROAD-B-C": [[12.9784, 77.6408], [12.9352, 77.6245]],
+    "ROAD-C-D": [[12.9352, 77.6245], [12.9176, 77.6238]],
+    "ROAD-D-E": [[12.9176, 77.6238], [12.9260, 77.6762]],
+    "ROAD-E-F": [[12.9260, 77.6762], [12.8452, 77.6602]],
+    "ROAD-F-A": [[12.8452, 77.6602], [12.9756, 77.6067]]
   };
 
   traffic.forEach(item => {
@@ -162,6 +162,12 @@ function renderMapElements(cameras, traffic) {
       }).bindTooltip(`${item.road_id}: Congestion ${item.congestion_pct}% (${item.avg_speed_kmh} km/h)`).addTo(polylineGroup);
     }
   });
+
+  // Fit bounds if markers exist
+  if (cameras.length > 0) {
+    const bounds = L.latLngBounds(cameras.map(c => [c.latitude, c.longitude]));
+    map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+  }
 }
 
 // UPDATE SUMMARY STATS
@@ -395,7 +401,7 @@ async function runSimulation() {
   const payload = {
     closed_roads: closedRoad ? [closedRoad] : [],
     traffic_volume_change_pct: volChange,
-    signal_timing_adjustments: { "Junction_A": signalSec }
+    signal_timing_adjustments: { "Junction_Trinity": signalSec }
   };
 
   try {
