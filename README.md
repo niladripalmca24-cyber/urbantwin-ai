@@ -1,5 +1,7 @@
 # 🏙️ UrbanTwin AI
 
+Demo live link-https://urbantwin-ai-2.onrender.com
+
 > **Multi-Camera Traffic Intelligence & Predictive Urban Digital Twin API**
 
 [![CI Pipeline](https://github.com/niladripalmca24-cyber/urbantwin-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/niladripalmca24-cyber/urbantwin-ai/actions)
