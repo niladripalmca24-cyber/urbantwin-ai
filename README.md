@@ -4,8 +4,8 @@ Demo live link-https://urbantwin-ai-2.onrender.com
 
 > **Multi-Camera Traffic Intelligence & Predictive Urban Digital Twin API**
 
-[![CI Pipeline](https://github.com/niladripalmca24-cyber/urbantwin-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/niladripalmca24-cyber/urbantwin-ai/actions)
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/niladripalmca24-cyber/urbantwin-ai)
+[![Interactive Swagger UI](https://img.shields.io/badge/Swagger%20UI-Interactive%20Docs-009688.svg?logo=swagger)](/docs)
+[![ReDoc Reference](https://img.shields.io/badge/ReDoc-API%20Reference-purple.svg?logo=openapi-initiative)](/redoc)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker)](https://www.docker.com/)
@@ -213,36 +213,41 @@ docker run -d -p 8000:8000 \
   your-registry/urbantwin-ai:latest
 ```
 
-#### Option B: PaaS (e.g. Render / Railway / Heroku)
-1. Link your GitHub repository.
+#### Option B: PaaS (e.g. Render / Railway / Heroku / Cloud Run)
+1. Link your source repository or container image.
 2. Set Build Command: `pip install -r backend/requirements.txt`
 3. Set Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir backend`
 4. Set Environment Variables (`SECRET_KEY`, `ANPR_SALT`, `ENVIRONMENT=production`).
 
 ---
 
-## 📤 Push to GitHub Guide
+## 📖 Interactive API Documentation (Swagger UI & ReDoc)
 
-To push this repository to GitHub:
+UrbanTwin AI provides two interactive, developer-grade API documentation interfaces built directly into the server:
 
-1. Create a new repository on GitHub (e.g. `urbantwin-ai`).
-2. Initialize and push from your local workspace:
+### 1. Swagger UI (`/docs`)
+* **URL:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+* **Features:**
+  * Interactive **"Try it out"** live execution enabled for all endpoints.
+  * Native **JWT Bearer Authorization**: Click the **Authorize** 🔓 button at the top right, provide your token, and test protected endpoints directly.
+  * Real-time request duration telemetry and response payload formatting.
+  * Curated domain grouping (`Auth`, `Cameras`, `Traffic`, `Vehicles`, `Roads`, `Predictions`, `Anomalies`, `Simulation`, `Health`).
+  * Custom dark cyber theme matching the UrbanTwin 3D operations console.
 
-```bash
-# Initialize git repository (if not already done)
-git init
-git add .
-git commit -m "feat: initial release of UrbanTwin AI with VS Code integration and Docker support"
+### 2. ReDoc Specification (`/redoc`)
+* **URL:** [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+* **Features:**
+  * Clean, three-column human-readable API architecture view.
+  * Complete JSON schema representations for all requests, responses, and validation models.
+  * Deep-linking and real-time search across schemas and endpoints.
 
-# Set default branch to main
-git branch -M main
-
-# Add your GitHub remote repository
-git remote add origin https://github.com/<YOUR_USERNAME>/<YOUR_REPOSITORY>.git
-
-# Push code to GitHub
-git push -u origin main
-```
+### 🔐 Authenticating in Swagger UI
+1. Navigate to `/docs`.
+2. Expand the `POST /api/v1/auth/token` endpoint and execute with credentials (or run the mock auth route).
+3. Copy the returned `access_token`.
+4. Click the **Authorize** button at the top of Swagger UI.
+5. In the `BearerAuth` dialog, enter your token (e.g. `Bearer <your_token>`) and click **Authorize**.
+6. All subsequent requests in Swagger UI will automatically include the `Authorization: Bearer <token>` header!
 
 ---
 

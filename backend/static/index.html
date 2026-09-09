@@ -1,108 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UrbanTwin AI — Multi-Camera Traffic Intelligence & Digital Twin</title>
-  
-  <!-- Fonts -->
+  <title>UrbanTwin AI — Autonomous Traffic Intelligence & 3D Predictive Digital Twin</title>
+  <meta name="description" content="State-of-the-art 3D Urban Digital Twin powered by multi-camera computer vision, spatial-temporal graph neural networks, and privacy-preserving vehicle re-identification.">
+
+  <!-- Google Fonts: Inter & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Leaflet CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
+
+  <!-- Three.js 3D WebGL Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
   <style>
     :root {
-      --bg-dark: #090d16;
-      --card-bg: rgba(17, 24, 39, 0.75);
-      --card-border: rgba(255, 255, 255, 0.08);
+      --bg-dark: #050811;
+      --card-bg: rgba(13, 20, 36, 0.7);
+      --card-border: rgba(6, 182, 212, 0.2);
       --accent-cyan: #06b6d4;
       --accent-emerald: #10b981;
       --accent-purple: #8b5cf6;
+      --accent-amber: #f59e0b;
     }
 
     body {
       font-family: 'Inter', sans-serif;
       background-color: var(--bg-dark);
-      color: #f3f4f6;
+      color: #f1f5f9;
       overflow-x: hidden;
+      margin: 0;
+      padding: 0;
     }
 
     h1, h2, h3, h4, .brand-font {
       font-family: 'Outfit', sans-serif;
     }
 
+    .code-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Glassmorphism Cards */
     .glass-card {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--card-border);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-      border-radius: 0.75rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+      border-radius: 1rem;
     }
 
     .glass-card-hover {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .glass-card-hover:hover {
-      border-color: rgba(6, 182, 212, 0.4);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px 0 rgba(6, 182, 212, 0.15);
+      border-color: rgba(6, 182, 212, 0.55);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px 0 rgba(6, 182, 212, 0.2);
     }
 
+    /* Glow utilities */
     .glow-cyan {
-      box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.4);
     }
-
+    .glow-purple {
+      box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+    }
     .glow-emerald {
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
     }
 
-    #city-map {
-      height: 480px;
-      width: 100%;
-      border-radius: 0.75rem;
-      z-index: 10;
-    }
-
-    .custom-leaflet-popup .leaflet-popup-content-wrapper {
-      background: #111827;
-      color: #f3f4f6;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 0.5rem;
-    }
-    .custom-leaflet-popup .leaflet-popup-tip {
-      background: #111827;
-    }
-
-    /* Custom scrollbars */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0d1322;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1f2937;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #06b6d4;
-    }
-    
+    /* Pulse Dot */
     .pulse-dot {
       display: inline-block;
       width: 8px;
@@ -110,7 +86,7 @@
       border-radius: 50%;
       background: #10b981;
       box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-      animation: pulse-ring 1.8s infinite;
+      animation: pulse-ring 2s infinite;
     }
 
     @keyframes pulse-ring {
@@ -118,407 +94,553 @@
       70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
       100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
+
+    /* 3D Canvas Viewport */
+    #webgl-canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .hero-gradient-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(5, 8, 17, 0.25) 0%, rgba(5, 8, 17, 0.85) 75%, #050811 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #050811;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #06b6d4;
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black">
 
   <!-- TOP NAVBAR -->
-  <header class="glass-card sticky top-0 z-50 rounded-none border-t-0 border-x-0 px-6 py-3.5 flex items-center justify-between">
+  <header class="glass-card sticky top-0 z-50 rounded-none border-t-0 border-x-0 px-6 py-3.5 flex items-center justify-between border-b border-cyan-500/20 bg-slate-950/80 backdrop-blur-xl">
     <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg glow-cyan">
-        <i class="fa-solid fa-brain text-xl"></i>
-      </div>
-      <div>
-        <div class="flex items-center space-x-2">
-          <span class="brand-font text-xl font-bold text-white tracking-wide">UrbanTwin</span>
-          <span class="bg-cyan-500/20 text-cyan-400 text-xs font-semibold px-2 py-0.5 rounded-md border border-cyan-500/30">AI</span>
+      <a href="/" class="flex items-center space-x-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg glow-cyan group-hover:scale-105 transition">
+          <i class="fa-solid fa-cube text-xl"></i>
         </div>
-        <p class="text-xs text-gray-400">Multi-Camera Traffic Intelligence & Digital Twin</p>
-      </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="brand-font text-2xl font-black tracking-tight text-white">UrbanTwin</span>
+            <span class="bg-cyan-500/20 text-cyan-400 text-xs font-bold px-2 py-0.5 rounded-md border border-cyan-500/40">3D AI</span>
+          </div>
+          <p class="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Autonomous Digital Twin</p>
+        </div>
+      </a>
     </div>
 
-    <!-- CENTER TAB NAVIGATION -->
-    <nav class="hidden md:flex space-x-1 bg-gray-900/80 p-1 rounded-xl border border-gray-800">
-      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn px-4 py-2 text-xs font-medium rounded-lg text-white bg-cyan-600/30 border border-cyan-500/40 transition">
-        <i class="fa-solid fa-chart-line mr-1.5 text-cyan-400"></i>Dashboard
-      </button>
-      <button onclick="switchTab('cameras')" id="nav-cameras" class="tab-btn px-4 py-2 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">
-        <i class="fa-solid fa-video mr-1.5 text-gray-400"></i>Camera Stream
-      </button>
-      <button onclick="switchTab('tracking')" id="nav-tracking" class="tab-btn px-4 py-2 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">
-        <i class="fa-solid fa-route mr-1.5 text-gray-400"></i>Vehicle Re-ID
-      </button>
-      <button onclick="switchTab('analytics')" id="nav-analytics" class="tab-btn px-4 py-2 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">
-        <i class="fa-solid fa-network-wired mr-1.5 text-gray-400"></i>Analytics
-      </button>
-      <button onclick="switchTab('predictions')" id="nav-predictions" class="tab-btn px-4 py-2 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">
-        <i class="fa-solid fa-wand-magic-sparkles mr-1.5 text-gray-400"></i>Predictions
-      </button>
-      <button onclick="switchTab('simulation')" id="nav-simulation" class="tab-btn px-4 py-2 text-xs font-medium rounded-lg text-gray-400 hover:text-white transition">
-        <i class="fa-solid fa-flask mr-1.5 text-purple-400"></i>What-If Twin
-      </button>
+    <!-- NAVIGATION LINKS -->
+    <nav class="hidden lg:flex items-center space-x-6 text-sm font-medium text-gray-300">
+      <a href="#hero-3d" class="hover:text-cyan-400 transition flex items-center"><i class="fa-solid fa-vr-cardboard mr-1.5 text-cyan-400"></i>3D City Twin</a>
+      <a href="#telemetry" class="hover:text-cyan-400 transition flex items-center"><i class="fa-solid fa-chart-line mr-1.5 text-cyan-400"></i>Live Telemetry</a>
+      <a href="#features" class="hover:text-cyan-400 transition flex items-center"><i class="fa-solid fa-microchip mr-1.5 text-cyan-400"></i>Neural AI Core</a>
+      <a href="#architecture" class="hover:text-cyan-400 transition flex items-center"><i class="fa-solid fa-diagram-project mr-1.5 text-cyan-400"></i>Architecture</a>
+      <a href="/docs" target="_blank" class="hover:text-cyan-400 transition flex items-center"><i class="fa-solid fa-code mr-1.5 text-cyan-400"></i>Swagger UI</a>
+      <a href="/redoc" target="_blank" class="hover:text-purple-400 transition flex items-center"><i class="fa-solid fa-book mr-1.5 text-purple-400"></i>ReDoc Spec</a>
     </nav>
 
-    <!-- RIGHT STATUS & SECURITY BADGES -->
-    <div class="flex items-center space-x-4">
-      <div class="hidden sm:flex items-center space-x-2 bg-emerald-950/40 border border-emerald-500/30 px-3 py-1.5 rounded-lg text-xs">
+    <!-- RIGHT CTA BUTTONS -->
+    <div class="flex items-center space-x-3">
+      <div class="hidden sm:flex items-center space-x-2 bg-emerald-950/40 border border-emerald-500/40 px-3 py-1.5 rounded-lg text-xs">
         <span class="pulse-dot"></span>
-        <span class="text-emerald-400 font-medium">ANPR Privacy Salt: Active</span>
+        <span class="text-emerald-400 font-medium">Render Cloud: Live</span>
       </div>
-      <div class="flex items-center space-x-2 bg-gray-800/80 border border-gray-700 px-3 py-1.5 rounded-lg text-xs">
-        <i class="fa-solid fa-shield-halved text-cyan-400"></i>
-        <span class="text-gray-300 font-medium">Secured</span>
-      </div>
+      <a href="/dashboard" class="relative group overflow-hidden px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold text-xs tracking-wide shadow-lg glow-cyan hover:from-cyan-400 hover:to-blue-500 transition flex items-center">
+        <i class="fa-solid fa-gauge-high mr-2 text-sm"></i>Launch Operations Dashboard
+      </a>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
+  <!-- 3D HERO SECTION (FIRST CONTACT VIEWPORT) -->
+  <section id="hero-3d" class="relative min-h-[92vh] flex flex-col justify-between overflow-hidden border-b border-cyan-500/20">
+    <!-- WebGL Canvas Container -->
+    <div id="webgl-canvas-container"></div>
+    <div class="hero-gradient-overlay"></div>
 
-    <!-- SUMMARY METRIC CARDS ROW -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="glass-card p-4 glass-card-hover flex items-center space-x-4">
-        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl">
-          <i class="fa-solid fa-video"></i>
+    <!-- 3D INTERACTIVE HUD TOP-BAR -->
+    <div class="relative z-10 p-6 max-w-7xl w-full mx-auto flex flex-wrap items-center justify-between gap-4 pointer-events-none">
+      <div class="glass-card px-4 py-2 border-cyan-500/30 flex items-center space-x-3 pointer-events-auto">
+        <div class="flex items-center space-x-2">
+          <span class="pulse-dot"></span>
+          <span class="text-xs font-bold text-white tracking-wider uppercase">3D Neural Simulation Active</span>
         </div>
-        <div>
-          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Active Cameras</p>
-          <div class="flex items-baseline space-x-2">
-            <span class="text-2xl font-bold text-white brand-font" id="stat-cameras">6</span>
-            <span class="text-xs text-emerald-400 font-medium"><i class="fa-solid fa-arrow-up mr-1"></i>100% online</span>
-          </div>
+        <span class="text-gray-600">|</span>
+        <span class="text-xs text-cyan-400 code-font">6 Edge Cameras Synced</span>
+      </div>
+
+      <!-- 3D CAMERA CONTROLLER BUTTONS -->
+      <div class="glass-card p-1.5 border-cyan-500/30 flex items-center space-x-1 pointer-events-auto">
+        <span class="text-[11px] font-semibold text-gray-400 px-2 uppercase tracking-wider hidden sm:inline">Camera Preset:</span>
+        <button id="btn-mode-cinematic" onclick="set3DCameraMode('cinematic')" class="cam-mode-btn px-3 py-1 text-xs rounded-lg bg-cyan-500 text-black font-bold transition">
+          <i class="fa-solid fa-video mr-1"></i>Cinematic
+        </button>
+        <button id="btn-mode-drone" onclick="set3DCameraMode('drone')" class="cam-mode-btn px-3 py-1 text-xs rounded-lg bg-gray-800/80 text-gray-300 hover:text-white transition">
+          <i class="fa-solid fa-satellite mr-1"></i>Drone View
+        </button>
+        <button id="btn-mode-junction" onclick="set3DCameraMode('junction')" class="cam-mode-btn px-3 py-1 text-xs rounded-lg bg-gray-800/80 text-gray-300 hover:text-white transition">
+          <i class="fa-solid fa-crosshairs mr-1"></i>Smart Junction
+        </button>
+        <button id="btn-toggle-wireframe" onclick="toggleWireframeMode()" class="px-3 py-1 text-xs rounded-lg bg-gray-800/80 text-gray-300 hover:text-white transition border border-gray-700">
+          <i class="fa-solid fa-border-none mr-1 text-cyan-400"></i>Wireframe Matrix
+        </button>
+      </div>
+    </div>
+
+    <!-- HERO CONTENT CONTAINER -->
+    <div class="relative z-10 max-w-7xl w-full mx-auto px-6 py-12 flex-1 flex flex-col justify-center pointer-events-none">
+      <div class="max-w-3xl space-y-6">
+        <!-- BADGE -->
+        <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-cyan-950/80 to-blue-950/80 border border-cyan-500/40 px-3.5 py-1.5 rounded-full text-xs text-cyan-300 backdrop-blur-md pointer-events-auto glow-cyan">
+          <i class="fa-solid fa-network-wired text-cyan-400"></i>
+          <span>Multi-Camera Spatial Intelligence & Predictive Urban Twin</span>
+          <span class="bg-cyan-400/20 text-cyan-300 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase">v1.0.0</span>
+        </div>
+
+        <!-- MAIN HEADLINE -->
+        <h1 class="brand-font text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-[1.08] drop-shadow-2xl">
+          The Autonomous <br>
+          <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-300 to-blue-500">
+            3D Urban Digital Twin
+          </span>
+        </h1>
+
+        <!-- SUBTEXT -->
+        <p class="text-base sm:text-xl text-gray-300 leading-relaxed font-normal max-w-2xl drop-shadow">
+          Real-time multi-camera traffic tracking, zero-PII cryptographic ANPR vehicle re-identification, spatio-temporal GCN congestion forecasting, and autonomous what-if scenario simulations.
+        </p>
+
+        <!-- CTA BUTTONS -->
+        <div class="flex flex-wrap items-center gap-4 pt-4 pointer-events-auto">
+          <a href="/dashboard" class="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm tracking-wide shadow-2xl glow-cyan hover:from-cyan-400 hover:to-blue-500 hover:scale-[1.02] transition flex items-center">
+            <i class="fa-solid fa-gauge-high mr-2.5 text-base"></i>Launch Live Operations Dashboard
+          </a>
+          <button onclick="set3DCameraMode('junction')" class="px-6 py-4 rounded-xl bg-slate-900/80 hover:bg-slate-800/90 text-white font-semibold text-sm border border-cyan-500/40 backdrop-blur-md transition flex items-center">
+            <i class="fa-solid fa-street-view mr-2 text-cyan-400"></i>Inspect 3D Smart Junctions
+          </button>
+          <button id="btn-sim-incident" onclick="trigger3DIncident()" class="px-5 py-4 rounded-xl bg-amber-950/40 hover:bg-amber-900/50 text-amber-300 font-semibold text-sm border border-amber-500/40 backdrop-blur-md transition flex items-center">
+            <i class="fa-solid fa-triangle-exclamation mr-2 text-amber-400"></i>Simulate Bottleneck
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3D HUD BOTTOM CONTROLS & LIVE TICKER -->
+    <div class="relative z-10 p-6 max-w-7xl w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-4 pointer-events-none">
+      <!-- TRAFFIC SPEED DENSITY CONTROLLER -->
+      <div class="glass-card px-4 py-2.5 border-cyan-500/30 flex items-center space-x-3 pointer-events-auto w-full md:w-auto">
+        <i class="fa-solid fa-gauge text-cyan-400 text-sm"></i>
+        <span class="text-xs text-gray-300 font-medium whitespace-nowrap">Twin Flow Load:</span>
+        <input type="range" min="0.3" max="2.2" step="0.1" value="1.0" oninput="setTrafficSpeed(this.value)" class="w-28 accent-cyan-400 cursor-pointer">
+        <span id="traffic-speed-label" class="text-xs font-bold text-cyan-400 code-font">100%</span>
+      </div>
+
+      <!-- INCIDENT BANNER -->
+      <div id="twin-incident-banner" class="hidden glass-card px-4 py-2 border-red-500/50 bg-red-950/40 items-center space-x-3 pointer-events-auto">
+        <i class="fa-solid fa-triangle-exclamation text-red-400 animate-bounce"></i>
+        <span class="text-xs font-semibold text-red-300">Financial Core (CAM_03) Congestion Event active — Digital Twin dynamically rerouting traffic.</span>
+      </div>
+
+      <!-- HINT -->
+      <div class="text-xs text-gray-400 pointer-events-auto flex items-center space-x-2">
+        <i class="fa-solid fa-hand-pointer text-cyan-400"></i>
+        <span>Click on any 3D floating sensor beacon to view live camera telemetry</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE TELEMETRY RIBBON -->
+  <section id="telemetry" class="bg-slate-950/90 border-b border-gray-800/80 py-6 px-6 relative z-20">
+    <div class="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      
+      <div class="glass-card p-4 border-cyan-500/20 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+          <span>Active Cameras</span>
+          <i class="fa-solid fa-video text-cyan-400"></i>
+        </div>
+        <div class="flex items-baseline space-x-2">
+          <span class="text-2xl font-bold text-white brand-font">6 / 6</span>
+          <span class="text-[11px] text-emerald-400 font-medium">100% Online</span>
         </div>
       </div>
 
-      <div class="glass-card p-4 glass-card-hover flex items-center space-x-4">
-        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-xl">
-          <i class="fa-solid fa-car"></i>
+      <div class="glass-card p-4 border-cyan-500/20 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+          <span>Live Vehicles</span>
+          <i class="fa-solid fa-car text-blue-400"></i>
         </div>
-        <div>
-          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Live Vehicle Count</p>
-          <div class="flex items-baseline space-x-2">
-            <span class="text-2xl font-bold text-white brand-font" id="stat-vehicles">558</span>
-            <span class="text-xs text-gray-400">vehicles/network</span>
-          </div>
+        <div class="flex items-baseline space-x-2">
+          <span id="live-total-vehicles" class="text-2xl font-bold text-white brand-font">558</span>
+          <span class="text-[11px] text-cyan-400 font-medium">Tracked</span>
         </div>
       </div>
 
-      <div class="glass-card p-4 glass-card-hover flex items-center space-x-4">
-        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl">
-          <i class="fa-solid fa-gauge-high"></i>
+      <div class="glass-card p-4 border-cyan-500/20 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+          <span>City Mean Speed</span>
+          <i class="fa-solid fa-bolt text-yellow-400"></i>
         </div>
-        <div>
-          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Avg Corridor Speed</p>
-          <div class="flex items-baseline space-x-2">
-            <span class="text-2xl font-bold text-white brand-font" id="stat-speed">42.6</span>
-            <span class="text-xs text-gray-400">km/h</span>
-          </div>
+        <div class="flex items-baseline space-x-2">
+          <span id="live-avg-speed" class="text-2xl font-bold text-white brand-font">44.8 km/h</span>
+          <span class="text-[11px] text-emerald-400 font-medium">Optimal</span>
         </div>
       </div>
 
-      <div class="glass-card p-4 glass-card-hover flex items-center space-x-4">
-        <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 text-xl">
+      <div class="glass-card p-4 border-cyan-500/20 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+          <span>Re-ID Accuracy</span>
+          <i class="fa-solid fa-fingerprint text-purple-400"></i>
+        </div>
+        <div class="flex items-baseline space-x-2">
+          <span class="text-2xl font-bold text-white brand-font">99.4%</span>
+          <span class="text-[11px] text-purple-400 font-medium">mAP@50</span>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 border-cyan-500/20 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+          <span>Edge Latency</span>
+          <i class="fa-solid fa-stopwatch text-emerald-400"></i>
+        </div>
+        <div class="flex items-baseline space-x-2">
+          <span class="text-2xl font-bold text-white brand-font">&lt; 18 ms</span>
+          <span class="text-[11px] text-emerald-400 font-medium">Real-time</span>
+        </div>
+      </div>
+
+      <div class="glass-card p-4 border-cyan-500/20 flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-gray-400 mb-2">
+          <span>PII Privacy Salt</span>
+          <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+        </div>
+        <div class="flex items-baseline space-x-2">
+          <span class="text-2xl font-bold text-white brand-font">SHA-256</span>
+          <span class="text-[11px] text-cyan-400 font-medium">Active</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CORE FEATURES / DIGITAL TWIN ARCHITECTURE -->
+  <section id="features" class="py-20 px-6 max-w-7xl mx-auto space-y-16">
+    <div class="text-center space-y-4 max-w-3xl mx-auto">
+      <div class="inline-flex items-center space-x-2 bg-cyan-950/60 border border-cyan-500/30 px-3 py-1 rounded-full text-xs text-cyan-400">
+        <i class="fa-solid fa-microchip"></i>
+        <span>Advanced Intelligent Transportation Systems (ITS)</span>
+      </div>
+      <h2 class="brand-font text-3xl sm:text-5xl font-extrabold text-white">
+        Architected for Autonomous Urban Mobility
+      </h2>
+      <p class="text-gray-400 text-base sm:text-lg">
+        Bridging high-speed edge computer vision with spatio-temporal graph intelligence to build an actionable digital replica of your city.
+      </p>
+    </div>
+
+    <!-- 6 FEATURE CARDS GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Feature 1 -->
+      <div class="glass-card p-6 glass-card-hover space-y-4 relative overflow-hidden group">
+        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition">
+          <i class="fa-solid fa-route"></i>
+        </div>
+        <h3 class="brand-font text-xl font-bold text-white">Multi-Camera Spatial Re-ID</h3>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Associates vehicles across disjoint, non-overlapping camera blindspots using appearance embeddings and spatio-temporal transition feasibility graphs.
+        </p>
+        <div class="pt-2 flex items-center text-xs text-cyan-400 font-semibold">
+          <span>Continuous Trajectory Reconstruction</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="glass-card p-6 glass-card-hover space-y-4 relative overflow-hidden group">
+        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl group-hover:scale-110 transition">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <h3 class="brand-font text-xl font-bold text-white">GCN-LSTM Predictive Modeling</h3>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Graph Convolutional Networks map physical road network topology while Bi-LSTM layers capture temporal traffic dynamics to forecast flow 5, 15, and 30 minutes in advance.
+        </p>
+        <div class="pt-2 flex items-center text-xs text-purple-400 font-semibold">
+          <span>Sub-50ms Spatio-temporal Inference</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="glass-card p-6 glass-card-hover space-y-4 relative overflow-hidden group">
+        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-2xl group-hover:scale-110 transition">
+          <i class="fa-solid fa-flask"></i>
+        </div>
+        <h3 class="brand-font text-xl font-bold text-white">High-Fidelity "What-If" Twin</h3>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Simulate construction closures, signal timing adjustments, and severe weather impacts. Predict city-wide gridlock before executing changes on physical streets.
+        </p>
+        <div class="pt-2 flex items-center text-xs text-blue-400 font-semibold">
+          <span>Proactive Traffic Engineering</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="glass-card p-6 glass-card-hover space-y-4 relative overflow-hidden group">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl group-hover:scale-110 transition">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <h3 class="brand-font text-xl font-bold text-white">Cryptographic ANPR Privacy</h3>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Raw license plates are never stored. Salted SHA-256 HMAC pseudonymization converts plates into irreversible cryptographic hashes, guaranteeing GDPR & statutory compliance.
+        </p>
+        <div class="pt-2 flex items-center text-xs text-emerald-400 font-semibold">
+          <span>Privacy by Design Architecture</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="glass-card p-6 glass-card-hover space-y-4 relative overflow-hidden group">
+        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl group-hover:scale-110 transition">
           <i class="fa-solid fa-triangle-exclamation"></i>
         </div>
-        <div>
-          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Network Congestion</p>
-          <div class="flex items-baseline space-x-2">
-            <span class="text-2xl font-bold text-rose-400 brand-font" id="stat-congestion">46.3%</span>
-            <span class="text-xs text-rose-400 font-medium">Moderate</span>
-          </div>
+        <h3 class="brand-font text-xl font-bold text-white">Automated Anomaly Radar</h3>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Detect stalled vehicles, wrong-way drivers, unexpected congestion spikes, and sudden queue buildups instantly to alert municipal emergency response teams.
+        </p>
+        <div class="pt-2 flex items-center text-xs text-amber-400 font-semibold">
+          <span>Instant Event Triage</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+        </div>
+      </div>
+
+      <!-- Feature 6 -->
+      <div class="glass-card p-6 glass-card-hover space-y-4 relative overflow-hidden group">
+        <div class="w-12 h-12 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 text-2xl group-hover:scale-110 transition">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <h3 class="brand-font text-xl font-bold text-white">Production Cloud & Edge API</h3>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Built on FastAPI with asynchronous endpoints, full Swagger 3.0 documentation, containerized Docker deployment, and instant continuous delivery on Render.
+        </p>
+        <div class="pt-2 flex items-center text-xs text-teal-400 font-semibold">
+          <span>Zero-Downtime Deployment</span>
+          <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE FLOW SECTION -->
+  <section id="architecture" class="py-16 px-6 bg-slate-950/60 border-y border-gray-800/80">
+    <div class="max-w-7xl mx-auto space-y-12">
+      <div class="text-center space-y-3">
+        <h2 class="brand-font text-3xl font-extrabold text-white">End-to-End Pipeline Architecture</h2>
+        <p class="text-gray-400 text-sm max-w-2xl mx-auto">
+          From edge video ingest to holographic 3D digital twin synchronization and predictive control.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+        <!-- Step 1 -->
+        <div class="glass-card p-5 border-cyan-500/30 relative">
+          <span class="text-xs font-bold text-cyan-400 code-font">STEP 01</span>
+          <h4 class="brand-font text-base font-bold text-white mt-1 mb-2">Edge Vision Ingest</h4>
+          <p class="text-xs text-gray-400">
+            Multi-camera RTSP video feeds processed with YOLOv8 at 30+ FPS for vehicle bounding boxes & directional lane flux.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="glass-card p-5 border-cyan-500/30 relative">
+          <span class="text-xs font-bold text-purple-400 code-font">STEP 02</span>
+          <h4 class="brand-font text-base font-bold text-white mt-1 mb-2">Cryptographic Hashing</h4>
+          <p class="text-xs text-gray-400">
+            Edge ANPR extracts license plate strings and securely salts them into irreversible SHA-256 tokens before network transmission.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="glass-card p-5 border-cyan-500/30 relative">
+          <span class="text-xs font-bold text-blue-400 code-font">STEP 03</span>
+          <h4 class="brand-font text-base font-bold text-white mt-1 mb-2">Graph Spatial Fusion</h4>
+          <p class="text-xs text-gray-400">
+            Cross-camera tracking matches vehicle re-identification and feeds topological road graph with real-time lane densities.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="glass-card p-5 border-cyan-500/30 relative">
+          <span class="text-xs font-bold text-emerald-400 code-font">STEP 04</span>
+          <h4 class="brand-font text-base font-bold text-white mt-1 mb-2">3D Twin & Simulation</h4>
+          <p class="text-xs text-gray-400">
+            Live WebGL 3D city syncs with GCN forecasts and empowers traffic controllers to simulate signal timing & road rerouting.
+          </p>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- TAB CONTENT 1: DASHBOARD OVERVIEW -->
-    <div id="tab-dashboard" class="tab-content space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- MAP VISUALIZER (2 COLS) -->
-        <div class="lg:col-span-2 glass-card p-4 flex flex-col justify-between">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center space-x-2">
-              <i class="fa-solid fa-map-location-dot text-cyan-400"></i>
-              <h2 class="text-lg font-bold text-white">Live City Digital Twin Map</h2>
-            </div>
-            <div class="flex items-center space-x-3 text-xs">
-              <span class="flex items-center text-gray-300"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-1.5"></span>Low (0-30%)</span>
-              <span class="flex items-center text-gray-300"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 mr-1.5"></span>Med (30-65%)</span>
-              <span class="flex items-center text-gray-300"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-1.5"></span>High (65%+)</span>
-            </div>
-          </div>
-          <div id="city-map"></div>
-        </div>
-
-        <!-- LIVE ANOMALIES & CAMERA SUMMARY (1 COL) -->
-        <div class="space-y-6">
-          <!-- ANOMALY ALERTS -->
-          <div class="glass-card p-4">
-            <div class="flex items-center justify-between mb-3 border-b border-gray-800 pb-2">
-              <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-bell text-rose-400"></i>
-                <h3 class="text-base font-bold text-white">Active Traffic Anomalies</h3>
-              </div>
-              <span class="bg-rose-500/20 text-rose-400 text-xs px-2 py-0.5 rounded font-semibold border border-rose-500/30">3 Detected</span>
-            </div>
-            <div class="space-y-3 max-h-[220px] overflow-y-auto pr-1" id="anomaly-list">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
-
-          <!-- QUICK CAMERA STATUS -->
-          <div class="glass-card p-4">
-            <div class="flex items-center justify-between mb-3 border-b border-gray-800 pb-2">
-              <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-video text-cyan-400"></i>
-                <h3 class="text-base font-bold text-white">Camera Nodes Status</h3>
-              </div>
-              <button onclick="switchTab('cameras')" class="text-xs text-cyan-400 hover:underline">View All</button>
-            </div>
-            <div class="space-y-2 text-xs" id="quick-camera-list">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
-        </div>
-
+  <!-- QUICK DEVELOPER API & cURL EXPLORER -->
+  <section class="py-16 px-6 max-w-7xl mx-auto space-y-8">
+    <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-4">
+      <div>
+        <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider code-font">API First Design</span>
+        <h2 class="brand-font text-3xl font-extrabold text-white mt-1">Direct Developer Integration</h2>
+      </div>
+      <div class="flex items-center space-x-3">
+        <a href="/docs" target="_blank" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold border border-gray-700 transition flex items-center">
+          <i class="fa-solid fa-code mr-1.5 text-cyan-400"></i>Interactive Swagger UI
+        </a>
+        <a href="/redoc" target="_blank" class="px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold border border-gray-700 transition flex items-center">
+          <i class="fa-solid fa-book mr-1.5 text-purple-400"></i>ReDoc Documentation
+        </a>
       </div>
     </div>
 
-    <!-- TAB CONTENT 2: CAMERA STREAMS & YOLO DETECTION -->
-    <div id="tab-cameras" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- VIDEO PLAYER CANVAS (2 COLS) -->
-        <div class="lg:col-span-2 glass-card p-5 space-y-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <span class="w-3 h-3 rounded-full bg-emerald-500 pulse-dot"></span>
-              <h2 class="text-lg font-bold text-white" id="active-cam-title">CAM_01 — MG Road - Trinity Junction</h2>
-            </div>
-            <div class="flex items-center space-x-2 text-xs bg-gray-800/80 px-3 py-1.5 rounded-lg border border-gray-700">
-              <i class="fa-solid fa-microchip text-cyan-400"></i>
-              <span class="text-gray-300 font-semibold" id="active-cam-fps">FPS: 30.0 | Inference: 14.2ms</span>
-            </div>
-          </div>
-
-          <!-- HTML5 CANVAS FOR YOLO BOUNDING BOXES -->
-          <div class="relative bg-black rounded-xl overflow-hidden border border-gray-800 aspect-video flex items-center justify-center">
-            <canvas id="yolo-canvas" width="960" height="540" class="w-full h-full object-cover"></canvas>
-            
-            <!-- OVERLAY WATERMARK -->
-            <div class="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded text-xs text-gray-300 border border-white/10 font-mono">
-              <span class="text-cyan-400 font-bold">YOLOv8 + ByteTrack Engine</span> | LIVE INFERENCE
-            </div>
-
-            <!-- ANPR MASKED PLATE OVERLAY -->
-            <div class="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md p-2.5 rounded-lg border border-white/10 text-xs space-y-1">
-              <div class="text-gray-400 font-medium flex items-center justify-between space-x-4">
-                <span>ANPR Privacy OCR:</span>
-                <span class="text-emerald-400 font-mono font-bold" id="anpr-plate-hash">PLT-A3F8B2C1D4</span>
-              </div>
-              <p class="text-[10px] text-gray-500">Salted SHA-256 Hash protection enabled</p>
-            </div>
-          </div>
-
-          <div class="flex justify-between items-center text-xs text-gray-400">
-            <p><i class="fa-solid fa-info-circle mr-1 text-cyan-400"></i>Detections are updated in real-time with bounding boxes, vehicle class, confidence scores & track IDs.</p>
-            <button onclick="triggerFrameProcess()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-3 py-1.5 rounded-lg font-medium transition flex items-center space-x-1.5">
-              <i class="fa-solid fa-play"></i><span>Trigger Frame Scan</span>
-            </button>
-          </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Snippet 1 -->
+      <div class="glass-card p-5 border-gray-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-400 font-semibold uppercase">Fetch Real-Time Traffic & Cameras</span>
+          <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold code-font">GET /api/v1/cameras</span>
         </div>
+        <pre class="bg-slate-950 p-4 rounded-xl text-xs code-font text-cyan-300 overflow-x-auto border border-gray-800/80"><code>curl -X GET "https://urbantwin-ai.onrender.com/api/v1/cameras" \
+  -H "Accept: application/json"</code></pre>
+      </div>
 
-        <!-- CAMERA SELECTOR (1 COL) -->
-        <div class="glass-card p-5 space-y-4">
-          <h3 class="text-base font-bold text-white border-b border-gray-800 pb-2">Select Camera Stream</h3>
-          <div class="space-y-3" id="camera-selector-list">
-            <!-- Dynamically populated -->
-          </div>
+      <!-- Snippet 2 -->
+      <div class="glass-card p-5 border-gray-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-400 font-semibold uppercase">Execute What-If Urban Simulation</span>
+          <span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded font-bold code-font">POST /api/v1/simulation</span>
         </div>
-
+        <pre class="bg-slate-950 p-4 rounded-xl text-xs code-font text-teal-300 overflow-x-auto border border-gray-800/80"><code>curl -X POST "https://urbantwin-ai.onrender.com/api/v1/simulation" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "closed_roads": ["ROAD-A-B"],
+    "traffic_volume_change_pct": 20.0,
+    "signal_timing_adjustments": {"Junction_Trinity": 40}
+  }'</code></pre>
       </div>
     </div>
+  </section>
 
-    <!-- TAB CONTENT 3: VEHICLE RE-ID & JOURNEY -->
-    <div id="tab-tracking" class="tab-content hidden space-y-6">
-      <div class="glass-card p-6 space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-4">
-          <div>
-            <h2 class="text-xl font-bold text-white">Cross-Camera Vehicle Re-Identification</h2>
-            <p class="text-xs text-gray-400">Probabilistic trajectory matching combining plate hashes, appearance features, travel time & route consistency.</p>
-          </div>
-          <div class="flex items-center space-x-2">
-            <span class="text-xs text-gray-400">Select Global ID:</span>
-            <select id="vehicle-select" onchange="loadVehicleTrajectory(this.value)" class="bg-gray-800 border border-gray-700 text-cyan-400 text-xs rounded-lg px-3 py-2 font-bold focus:outline-none">
-              <option value="V1023">GLOBAL VEHICLE V1023</option>
-              <option value="V4089">GLOBAL VEHICLE V4089</option>
-              <option value="V7712">GLOBAL VEHICLE V7712</option>
-            </select>
-          </div>
-        </div>
+  <!-- BOTTOM ACTION BANNER -->
+  <section class="py-16 px-6">
+    <div class="max-w-5xl mx-auto glass-card p-10 sm:p-14 border-cyan-500/40 relative overflow-hidden text-center space-y-6">
+      <div class="absolute -right-16 -bottom-16 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-16 -top-16 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <!-- TIMELINE & BREAKDOWN -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          <!-- TIMELINE CARD -->
-          <div class="space-y-4">
-            <h3 class="text-base font-bold text-white flex items-center space-x-2">
-              <i class="fa-solid fa-timeline text-cyan-400"></i>
-              <span>Reconstructed Trajectory Timeline</span>
-            </h3>
-            <div class="relative border-l-2 border-cyan-500/40 pl-6 ml-3 space-y-6 py-2" id="trajectory-timeline">
-              <!-- Dynamically populated -->
-            </div>
-          </div>
+      <h2 class="brand-font text-3xl sm:text-5xl font-black text-white">
+        Experience the Live Urban Digital Twin Now
+      </h2>
+      <p class="text-gray-300 max-w-xl mx-auto text-sm sm:text-base">
+        Monitor active live camera feeds, inspect vehicle trajectory re-identifications, and run predictive scenarios in real time.
+      </p>
 
-          <!-- PROBABILISTIC MATCH BREAKDOWN CARD -->
-          <div class="glass-card p-5 space-y-4 border border-cyan-500/20">
-            <div class="flex items-center justify-between border-b border-gray-800 pb-3">
-              <h3 class="text-base font-bold text-white">Matching Confidence Score</h3>
-              <span class="text-2xl font-extrabold text-emerald-400 brand-font" id="traj-final-score">91%</span>
-            </div>
-            
-            <div class="space-y-3 text-xs" id="traj-breakdown-bars">
-              <!-- Breakdown progress bars -->
-            </div>
-
-            <div class="bg-cyan-950/30 border border-cyan-500/20 p-3 rounded-lg text-xs text-cyan-300 space-y-1">
-              <p class="font-semibold"><i class="fa-solid fa-shield-check mr-1.5"></i>Probabilistic Re-ID Verified</p>
-              <p class="text-gray-400">Evaluates route network topology feasibility and spatial-temporal constraints to prevent false trajectory associations.</p>
-            </div>
-          </div>
-
-        </div>
+      <div class="pt-2 flex flex-wrap justify-center items-center gap-4">
+        <a href="/dashboard" class="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm shadow-2xl glow-cyan hover:from-cyan-400 hover:to-blue-500 hover:scale-105 transition flex items-center">
+          <i class="fa-solid fa-gauge-high mr-2 text-base"></i>Enter Live Digital Twin Dashboard
+        </a>
+        <a href="/docs" target="_blank" class="px-6 py-4 rounded-xl bg-cyan-950/80 hover:bg-cyan-900/90 text-cyan-300 hover:text-white font-semibold text-sm border border-cyan-500/50 hover:border-cyan-400 hover:scale-105 transition flex items-center shadow-lg glow-cyan">
+          <i class="fa-solid fa-code mr-2 text-base"></i>Interactive Swagger UI
+        </a>
+        <a href="/redoc" target="_blank" class="px-6 py-4 rounded-xl bg-purple-950/80 hover:bg-purple-900/90 text-purple-300 hover:text-white font-semibold text-sm border border-purple-500/50 hover:border-purple-400 hover:scale-105 transition flex items-center shadow-lg">
+          <i class="fa-solid fa-book mr-2 text-base"></i>ReDoc Documentation
+        </a>
       </div>
     </div>
-
-    <!-- TAB CONTENT 4: ANALYTICS -->
-    <div id="tab-analytics" class="tab-content hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="glass-card p-5 space-y-3">
-          <h3 class="text-base font-bold text-white">24-Hour Traffic Volume & Average Speed</h3>
-          <div class="h-64">
-            <canvas id="chart-history"></canvas>
-          </div>
-        </div>
-        <div class="glass-card p-5 space-y-3">
-          <h3 class="text-base font-bold text-white">Vehicle Category Distribution</h3>
-          <div class="h-64 flex items-center justify-center">
-            <canvas id="chart-categories"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB CONTENT 5: PREDICTIONS -->
-    <div id="tab-predictions" class="tab-content hidden space-y-6">
-      <div class="glass-card p-6 space-y-6">
-        <div class="flex items-center justify-between border-b border-gray-800 pb-4">
-          <div>
-            <h2 class="text-xl font-bold text-white">Supervised Time-Series Traffic Forecasting</h2>
-            <p class="text-xs text-gray-400">XGBoost & LSTM surrogate models predicting congestion for 5, 15, and 30-minute horizons.</p>
-          </div>
-          <div class="flex items-center space-x-3 text-xs">
-            <span class="bg-cyan-500/10 text-cyan-400 px-3 py-1 rounded-md border border-cyan-500/30">MAE: 2.41%</span>
-            <span class="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-md border border-blue-500/30">RMSE: 3.15%</span>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="predictions-grid">
-          <!-- Dynamically populated forecast cards -->
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB CONTENT 6: DIGITAL TWIN WHAT-IF SIMULATION -->
-    <div id="tab-simulation" class="tab-content hidden space-y-6">
-      <div class="glass-card p-6 space-y-6 border border-purple-500/30">
-        <div class="flex items-center space-x-3 border-b border-gray-800 pb-4">
-          <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 text-xl">
-            <i class="fa-solid fa-flask"></i>
-          </div>
-          <div>
-            <h2 class="text-xl font-bold text-white">Digital Twin What-If Scenario Simulator</h2>
-            <p class="text-xs text-gray-400">Simulate network interventions (Road closures, traffic surge %, signal green light timings) and compute Before vs After estimates.</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <!-- CONTROLS FORM (1 COL) -->
-          <div class="glass-card p-5 space-y-5 bg-gray-900/90">
-            <h3 class="text-base font-bold text-white text-purple-400">Scenario Parameters</h3>
-            
-            <!-- ROAD CLOSURE TOGGLE -->
-            <div class="space-y-2">
-              <label class="text-xs font-semibold text-gray-300 block">Close Road Segment:</label>
-              <select id="sim-road-close" class="w-full bg-gray-800 border border-gray-700 text-white text-xs rounded-lg p-2.5">
-                <option value="">None (All Roads Open)</option>
-                <option value="ROAD-A-B">ROAD-A-B: MG Road - Trinity Corridor</option>
-                <option value="ROAD-C-D">ROAD-C-D: Intermediate Ring Road - Koramangala</option>
-                <option value="ROAD-E-F">ROAD-E-F: Outer Ring Road - Bellandur Tech Corridor</option>
-              </select>
-            </div>
-
-            <!-- TRAFFIC SURGE SLIDER -->
-            <div class="space-y-2">
-              <div class="flex justify-between text-xs">
-                <label class="font-semibold text-gray-300">Traffic Volume Change (%):</label>
-                <span class="text-purple-400 font-bold" id="sim-volume-val">+20%</span>
-              </div>
-              <input type="range" id="sim-volume" min="-30" max="100" value="20" oninput="document.getElementById('sim-volume-val').innerText = (this.value >= 0 ? '+' : '') + this.value + '%'" class="w-full accent-purple-500">
-            </div>
-
-            <!-- SIGNAL TIMING ADJUSTMENT -->
-            <div class="space-y-2">
-              <div class="flex justify-between text-xs">
-                <label class="font-semibold text-gray-300">Junction Trinity Green Time (sec):</label>
-                <span class="text-cyan-400 font-bold" id="sim-signal-val">40s</span>
-              </div>
-              <input type="range" id="sim-signal" min="20" max="90" value="40" oninput="document.getElementById('sim-signal-val').innerText = this.value + 's'" class="w-full accent-cyan-500">
-            </div>
-
-            <button onclick="runSimulation()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg transition flex items-center justify-center space-x-2">
-              <i class="fa-solid fa-play"></i>
-              <span>Run Digital Twin Simulation</span>
-            </button>
-          </div>
-
-          <!-- SIMULATION RESULTS (2 COLS) -->
-          <div class="lg:col-span-2 glass-card p-5 space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-800 pb-2">
-              <h3 class="text-base font-bold text-white">Simulation Impact Comparison (BEFORE vs AFTER)</h3>
-              <div id="sim-scenario-badge" class="text-xs text-purple-300 font-mono bg-purple-950/40 px-2.5 py-1 rounded border border-purple-500/30"></div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="sim-results-cards">
-              <!-- Dynamically populated comparison cards -->
-            </div>
-
-            <div id="sim-affected-roads-container" class="space-y-1 text-xs">
-              <span class="text-gray-400 font-semibold">Corridors Evaluated:</span>
-              <div id="sim-affected-tags" class="flex flex-wrap gap-1.5 pt-1"></div>
-            </div>
-
-            <div class="bg-gray-900/60 p-4 rounded-xl border border-gray-800 space-y-2 text-xs">
-              <p class="font-bold text-gray-300"><i class="fa-solid fa-circle-info text-purple-400 mr-1.5"></i>Simulation Output Disclaimer</p>
-              <p class="text-gray-400">The outputs are digital-twin simulation estimates generated by network flow equilibrium algorithms. They serve as actionable decision-support tools for traffic controllers.</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-  </main>
+  </section>
 
   <!-- FOOTER -->
-  <footer class="glass-card rounded-none border-b-0 border-x-0 py-4 px-6 mt-8 text-center text-xs text-gray-500 flex justify-between items-center">
-    <span>UrbanTwin AI — Portfolio Ready Architecture & Production Code</span>
-    <span>FastAPI + PyTorch/XGBoost + OpenCV/YOLO + Leaflet + Chart.js</span>
+  <footer class="glass-card rounded-none border-x-0 border-b-0 border-t border-gray-800/80 py-8 px-6 mt-auto">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+      <div class="flex items-center space-x-3">
+        <div class="w-7 h-7 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+          <i class="fa-solid fa-cube text-xs"></i>
+        </div>
+        <span class="text-gray-300 font-semibold">UrbanTwin AI</span>
+        <span>&mdash; Autonomous Multi-Camera Traffic Intelligence & 3D Digital Twin</span>
+      </div>
+
+      <div class="flex items-center space-x-6">
+        <a href="/dashboard" class="hover:text-cyan-400 transition">Operations Dashboard</a>
+        <a href="/docs" target="_blank" class="hover:text-cyan-400 transition">Swagger UI</a>
+        <a href="/redoc" target="_blank" class="hover:text-purple-400 transition">ReDoc Reference</a>
+        <a href="/health" target="_blank" class="hover:text-cyan-400 transition">System Health</a>
+      </div>
+    </div>
   </footer>
 
-  <!-- APP JAVASCRIPT -->
-  <script src="/static/js/app.js"></script>
+  <!-- SENSOR MODAL (Opens when clicking 3D camera in WebGL) -->
+  <div id="twin-sensor-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="glass-card max-w-md w-full p-6 border-cyan-500/40 space-y-4 shadow-2xl glow-cyan animate-fade-in">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+            <i class="fa-solid fa-video text-sm"></i>
+          </div>
+          <div>
+            <h4 id="modal-cam-name" class="brand-font text-base font-bold text-white">Trinity Junction</h4>
+            <span id="modal-cam-id" class="text-xs text-cyan-400 code-font">CAM_01</span>
+          </div>
+        </div>
+        <button onclick="closeSensorModal()" class="text-gray-400 hover:text-white transition text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <div class="bg-slate-900/80 p-3 rounded-lg border border-gray-800">
+          <p class="text-gray-400">Current Flow</p>
+          <p id="modal-cam-flow" class="text-base font-bold text-white brand-font mt-0.5">142 veh/hr</p>
+        </div>
+        <div class="bg-slate-900/80 p-3 rounded-lg border border-gray-800">
+          <p class="text-gray-400">Average Velocity</p>
+          <p id="modal-cam-speed" class="text-base font-bold text-white brand-font mt-0.5">42 km/h</p>
+        </div>
+        <div class="bg-slate-900/80 p-3 rounded-lg border border-gray-800">
+          <p class="text-gray-400">Congestion Level</p>
+          <div class="mt-1">
+            <span id="modal-cam-status-badge" class="px-2 py-0.5 rounded text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">OPTIMAL</span>
+          </div>
+        </div>
+        <div class="bg-slate-900/80 p-3 rounded-lg border border-gray-800">
+          <p class="text-gray-400">ANPR Privacy Mode</p>
+          <p class="text-xs font-bold text-emerald-400 code-font mt-1">SALTED-SHA256</p>
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center justify-between">
+        <a href="/dashboard" class="w-full text-center px-4 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs transition">
+          <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i>Open in Live Dashboard Stream
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load 3D WebGL Scene Script -->
+  <script src="/static/js/home-3d.js"></script>
 </body>
 </html>

@@ -6,17 +6,27 @@ from app.core.security import anonymize_plate
 client = TestClient(app)
 
 def test_root_and_health():
-    # Test root dashboard HTML
+    # Test root 3D Homepage HTML
     response = client.get("/")
     assert response.status_code == 200
     assert "UrbanTwin" in response.text
+    assert "3D AI" in response.text or "3D" in response.text
     assert "X-Frame-Options" in response.headers
-    assert response.headers["X-Frame-Options"] == "DENY"
+    assert response.headers["X-Frame-Options"] == "SAMEORIGIN"
+
+    # Test /dashboard and /ui routes
+    res_dash = client.get("/dashboard")
+    assert res_dash.status_code == 200
+    assert "UrbanTwin" in res_dash.text
+
+    res_ui = client.get("/ui")
+    assert res_ui.status_code == 200
 
     # Test health check JSON
     res_health = client.get("/health")
     assert res_health.status_code == 200
     assert res_health.json()["status"] == "healthy"
+
 
 def test_anpr_plate_anonymization_security():
     plate = "7XYZ912"
@@ -91,3 +101,56 @@ def test_whatif_simulation():
     sim = res.json()
     assert "scenario_id" in sim
     assert len(sim["metrics"]) == 3
+
+def test_interactive_swagger_and_redoc():
+    # Test Swagger UI
+    res_docs = client.get("/docs")
+    assert res_docs.status_code == 200
+    assert "swagger-ui" in res_docs.text
+    assert "persistAuthorization" in res_docs.text
+    assert "tryItOutEnabled" in res_docs.text
+
+    # Test ReDoc
+    res_redoc = client.get("/redoc")
+    assert res_redoc.status_code == 200
+    assert "redoc" in res_redoc.text
+
+    # Test OpenAPI schema
+    res_openapi = client.get("/openapi.json")
+    assert res_openapi.status_code == 200
+    schema = res_openapi.json()
+    
+    # Verify security schemes present for Swagger UI Authorize dialog
+    assert "components" in schema
+    assert "securitySchemes" in schema["components"]
+    assert "BearerAuth" in schema["components"]["securitySchemes"]
+    assert "OAuth2PasswordBearer" in schema["components"]["securitySchemes"]
+    assert "security" in schema
+
+    # Verify static routes are not polluting OpenAPI specification
+    paths = schema["paths"]
+    assert "/" not in paths
+    assert "/dashboard" not in paths
+    assert "/ui" not in paths
+    assert "/app" not in paths
+
+    # Verify real API routes are cleanly documented
+    assert "/api/v1/cameras" in paths
+    assert "/api/v1/simulation" in paths
+
+def test_no_github_links_in_ui():
+    res = client.get("/")
+    assert res.status_code == 200
+    # Confirm no github references in landing page
+    assert "github.com" not in res.text
+    assert "fa-brands fa-github" not in res.text
+    # Confirm Swagger and ReDoc links are present
+    assert "/docs" in res.text
+    assert "/redoc" in res.text
+
+    # Confirm dashboard has links to /docs and /redoc
+    res_dash = client.get("/dashboard")
+    assert res_dash.status_code == 200
+    assert "/docs" in res_dash.text
+    assert "/redoc" in res_dash.text
+
